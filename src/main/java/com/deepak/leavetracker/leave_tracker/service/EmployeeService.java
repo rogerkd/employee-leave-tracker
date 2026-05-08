@@ -1,22 +1,29 @@
 package com.deepak.leavetracker.leave_tracker.service;
 
-import com.deepak.leavetracker.leave_tracker.dto.ApiResponse;
+import com.deepak.leavetracker.leave_tracker.dto.response.ApiResponse;
 import com.deepak.leavetracker.leave_tracker.entity.Employee;
+import com.deepak.leavetracker.leave_tracker.entity.UserAccount;
 
 import java.util.List;
 import java.util.Map;
 
 public interface EmployeeService {
 
-    List<Employee> fetchAllEmployee();
+    List<Employee> fetchAllEmployees();
 
-    Employee fetchEmployeeById(Integer empId);
+    Employee fetchEmployee(String username);
 
-    Employee addEmployee(Employee theEmployee);
+    Employee createEmployeeProfile(Employee theEmployee, String username);
 
-    Employee updateEmployee(Integer empId, Employee theEmployee);
+    Employee updateEmployeeProfile(Employee theEmployee, String username);
 
-    Employee partialUpdateEmployee(Integer empId, Map<String, Object> patchPayload);
+    Employee partialUpdateEmployeeProfile(String username, Map<String, Object> patchPayload);
 
-    ApiResponse deleteEmployee(Integer empId);
+    void deleteEmployeeProfile(String username);
+
+    UserAccount upgradeToManager(Integer empId, String username);
+
+    void upgradeManagerToApprover(Integer managerId, String username);
+
+    // upgrade to director
 }

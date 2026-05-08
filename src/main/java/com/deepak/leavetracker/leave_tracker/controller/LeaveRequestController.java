@@ -1,72 +1,96 @@
 package com.deepak.leavetracker.leave_tracker.controller;
 
-import com.deepak.leavetracker.leave_tracker.dto.ApiResponse;
+import com.deepak.leavetracker.leave_tracker.dto.request.LeaveReqRequestDTO;
+import com.deepak.leavetracker.leave_tracker.dto.response.ApiResponse;
+import com.deepak.leavetracker.leave_tracker.dto.response.LeaveReqResponseDTO;
 import com.deepak.leavetracker.leave_tracker.entity.LeaveRequest;
+import com.deepak.leavetracker.leave_tracker.mapper.LeaveRequestMapper;
 import com.deepak.leavetracker.leave_tracker.service.LeaveRequestService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/me/request-leaves")
 public class LeaveRequestController {
 
     private final LeaveRequestService leaveRequestService;
+    private final LeaveRequestMapper leaveRequestMapper;
 
-    public LeaveRequestController(LeaveRequestService leaveRequestService){
+    public LeaveRequestController(LeaveRequestService leaveRequestService,
+                                  LeaveRequestMapper leaveRequestMapper){
         this.leaveRequestService = leaveRequestService;
+        this.leaveRequestMapper = leaveRequestMapper;
     }
 
-    @GetMapping("/requestLeaves")
-    public List<LeaveRequest> fetchAllLeaveRequests(){
-        return leaveRequestService.findAllLeaveRequests();
+    @GetMapping("/list")
+    public ApiResponse<List<LeaveReqResponseDTO>> fetchAllLeaveRequests(){
+        List<LeaveRequest> requestList = leaveRequestService.fetchAllLeaveRequests();
+
+        return new ApiResponse<List<LeaveReqResponseDTO>>("Leave requests fetched successfully", leaveRequestMapper.toDTOList(requestList));
     }
 
-    @GetMapping("/requestLeaves/{leaveId}")
-    public LeaveRequest fetchLeaveRequestById(@PathVariable Integer leaveId) {
-        return leaveRequestService.findLeaveRequestById(leaveId);
+    @GetMapping
+    public ApiResponse<List<LeaveReqResponseDTO>> fetchAllLeaveRequestsByEmployee(Authentication auth){
+        String username = auth.getName();
+
+        List<LeaveRequest> requestList = leaveRequestService.fetchAllLeaveRequestsByEmployee(username);
+
+        return new ApiResponse<List<LeaveReqResponseDTO>>("Leave requests of employee fetched successfully", leaveRequestMapper.toDTOList(requestList));
     }
 
-    @PostMapping("/requestLeaves")
-    public ApiResponse applyLeave(@RequestBody LeaveRequest theLeaveRequest){
+    @GetMapping("/{leaveId}")
+    public ApiResponse<LeaveReqResponseDTO> fetchLeaveRequestById(@PathVariable Integer leaveId) {
 
-        LeaveRequest saved = leaveRequestService.applyLeave(theLeaveRequest);
+        LeaveRequest leaveRequest = leaveRequestService.fetchLeaveRequestById(leaveId);
 
-        return new ApiResponse("Leave request applied successfully", saved);
+        return new ApiResponse<LeaveReqResponseDTO>("leave request (Id-"+leaveId+") fetched successfully", leaveRequestMapper.toDTO(leaveRequest));
+    }
+
+    @PostMapping("/apply")
+    public ApiResponse<LeaveReqResponseDTO> applyLeave(@RequestBody LeaveReqRequestDTO dto, Authentication auth){
+        String username = auth.getName();
+
+        LeaveRequest leaveRequest = leaveRequestService.applyLeave(username, leaveRequestMapper.toEntity(dto));
+
+        return new ApiResponse<LeaveReqResponseDTO>("Leave request applied successfully", leaveRequestMapper.toDTO(leaveRequest));
 
     }
 
-    @PutMapping("/requestLeaves/{empId}/{leaveId}/approve")
-    public ApiResponse approveLeave(@PathVariable Integer empId, @PathVariable Integer leaveId){
+    @PutMapping("/{leaveId}/approve")
+    public ApiResponse<LeaveReqResponseDTO> approveLeave(@PathVariable Integer leaveId, Authentication auth){
+        String username = auth.getName();
 
-        LeaveRequest saved = leaveRequestService.approveLeave(empId, leaveId);
+        LeaveRequest leaveRequest = leaveRequestService.approveLeave(username, leaveId);
 
-        return new ApiResponse("Leave request successfully approved by manager(empId : " + empId + ")", saved);
+        return new ApiResponse<LeaveReqResponseDTO>("Leave request successfully approved by manager(empId : " + leaveRequest.getApprover() + ")", leaveRequestMapper.toDTO(leaveRequest));
     }
 
-    @PutMapping("/requestLeaves/{leaveId}")
-    public ApiResponse updateLeaveRequest(@PathVariable Integer leaveId, @RequestBody LeaveRequest theLeaveRequest){
+    @PutMapping("/{leaveId}")
+    public ApiResponse<LeaveReqResponseDTO> updateLeaveRequest(@PathVariable Integer leaveId, @RequestBody LeaveReqRequestDTO dto){
 
-        LeaveRequest saved = leaveRequestService.updateLeaveRequest(leaveId, theLeaveRequest);
+        LeaveRequest leaveRequest = leaveRequestService.updateLeaveRequest(leaveId, leaveRequestMapper.toEntity(dto));
 
-        return new ApiResponse("Leave request - " + leaveId + ", details has been updated successfully!!!", saved);
+        return new ApiResponse<LeaveReqResponseDTO>("Leave request - " + leaveId + ", details has been updated successfully", leaveRequestMapper.toDTO(leaveRequest));
     }
 
-    @PatchMapping("/requestLeaves/{leaveId}")
-    public ApiResponse partialUpdateLeaveRequest(@PathVariable Integer leaveId,
+    @PatchMapping("/{leaveId}")
+    public ApiResponse<LeaveReqResponseDTO> partialUpdateLeaveRequest(@PathVariable Integer leaveId,
                                              @RequestBody Map<String, Object> patchPayload){
 
-        LeaveRequest saved = leaveRequestService.partialUpdateLeaveRequest(leaveId, patchPayload);
+        LeaveRequest leaveRequest = leaveRequestService.partialUpdateLeaveRequest(leaveId, patchPayload);
 
-        return new ApiResponse("Leave request - " + leaveId + ", details has been updated successfully!!!", saved);
+        return new ApiResponse<LeaveReqResponseDTO>("Leave request - " + leaveId + ", details has been updated successfully!!!", leaveRequestMapper.toDTO(leaveRequest));
     }
 
 
-    @DeleteMapping("/requestLeaves/{leaveId}")
-    public ApiResponse deleteLeaveRequest(@PathVariable Integer leaveId){
+    @DeleteMapping("/{leaveId}")
+    public ApiResponse<LeaveReqResponseDTO> deleteLeaveRequest(@PathVariable Integer leaveId){
 
-        return leaveRequestService.deleteLeaveRequest(leaveId);
+        leaveRequestService.deleteLeaveRequest(leaveId);
 
+        return new ApiResponse<LeaveReqResponseDTO>("Leave request deleted successfully", null);
     }
 }

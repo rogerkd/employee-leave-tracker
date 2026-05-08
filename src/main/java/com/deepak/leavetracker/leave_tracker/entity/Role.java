@@ -25,9 +25,10 @@ public class Role {
 
     public Role(){};
 
-    public Role(Integer roleId, String roleName) {
+    public Role(Integer roleId, String roleName, List<UserRole> userRoles) {
         this.roleId = roleId;
         this.roleName = roleName;
+        this.userRoles = userRoles;
     }
 
     // getter and setter
@@ -48,4 +49,11 @@ public class Role {
         this.roleName = roleName;
     }
 
+    public List<UserRole> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(List<UserRole> userRoles) {
+        this.userRoles = userRoles;
+    }
 }

@@ -5,8 +5,8 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name="users")
-public class User {
+@Table(name="user_accounts")
+public class UserAccount {
 
     // fields
 
@@ -22,20 +22,21 @@ public class User {
     private String password;
 
     @Column(name="enabled")
-    private boolean enabled;
+    private Boolean enabled;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "userAccount")
     private List<UserRole> userRoles;
 
     // constructor
 
-    public User(){};
+    public UserAccount(){};
 
-    public User(Integer userId, boolean enabled, String password, String username) {
+    public UserAccount(Integer userId, Boolean enabled, String password, String username, List<UserRole> userRoles) {
         this.userId = userId;
         this.enabled = enabled;
         this.password = password;
         this.username = username;
+        this.userRoles = userRoles;
     }
 
     // getter and setter
@@ -64,19 +65,27 @@ public class User {
         this.password = password;
     }
 
-    public boolean isEnabled() {
+    public Boolean isEnabled() {
         return enabled;
     }
 
-    public void setEnabled(boolean enabled) {
+    public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public List<UserRole> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(List<UserRole> userRoles) {
+        this.userRoles = userRoles;
     }
 
     // toString()
 
     @Override
     public String toString() {
-        return "User{" +
+        return "UserAccount{" +
                 "userId=" + userId +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +

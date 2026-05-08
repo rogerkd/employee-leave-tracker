@@ -8,9 +8,14 @@ public class UserRole {
 
     // fields
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="user_role_id")
+    private Integer userRoleId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
-    private User user;
+    private UserAccount userAccount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="role_id")
@@ -20,19 +25,19 @@ public class UserRole {
 
     public UserRole(){};
 
-    public UserRole(User user, Role role) {
-        this.user = user;
+    public UserRole(UserAccount userAccount, Role role) {
+        this.userAccount = userAccount;
         this.role = role;
     }
 
     // getter and setter
 
-    public User getUser() {
-        return user;
+    public UserAccount getUserAccount() {
+        return userAccount;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserAccount(UserAccount userAccount) {
+        this.userAccount = userAccount;
     }
 
     public Role getRole() {

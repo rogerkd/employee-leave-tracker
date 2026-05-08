@@ -1,6 +1,6 @@
 package com.deepak.leavetracker.leave_tracker.controller;
 
-import com.deepak.leavetracker.leave_tracker.dto.ApiResponse;
+import com.deepak.leavetracker.leave_tracker.dto.response.ApiResponse;
 import com.deepak.leavetracker.leave_tracker.entity.Department;
 import com.deepak.leavetracker.leave_tracker.service.DepartmentService;
 import org.springframework.web.bind.annotation.*;

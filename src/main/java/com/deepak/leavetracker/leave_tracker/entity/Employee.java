@@ -24,23 +24,28 @@ public class Employee {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
-    private User user;
+    private UserAccount userAccount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="department_id")
     private Department department;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="leave_approver_id")
+    private Employee leaveApprover;
+
     // constructor
 
     public Employee(){}
 
-    public Employee(Integer empId, String firstName, String lastName, String email, User user, Department department) {
+    public Employee(Integer empId, String firstName, String lastName, String email, UserAccount userAccount, Department department, Employee leaveApprover) {
         this.empId = empId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.user = user;
+        this.userAccount = userAccount;
         this.department = department;
+        this.leaveApprover = leaveApprover;
     }
 
     // getters and setters
@@ -78,12 +83,12 @@ public class Employee {
         this.email = email;
     }
 
-    public User getUser() {
-        return user;
+    public UserAccount getUserAccount() {
+        return userAccount;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserAccount(UserAccount userAccount) {
+        this.userAccount = userAccount;
     }
 
     public Department getDepartment() {
@@ -92,6 +97,14 @@ public class Employee {
 
     public void setDepartment(Department department) {
         this.department = department;
+    }
+
+    public Employee getLeaveApprover() {
+        return leaveApprover;
+    }
+
+    public void setLeaveApprover(Employee leaveApprover) {
+        this.leaveApprover = leaveApprover;
     }
 
     // define toString()
@@ -103,8 +116,9 @@ public class Employee {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
-                ", user='" + user + '\'' +
-                ", department=" + department +
+                ", userAccount='" + userAccount + '\'' +
+                ", department=" + department + '\'' +
+                ", leaveApprover=" + leaveApprover +
                 '}';
     }
 }

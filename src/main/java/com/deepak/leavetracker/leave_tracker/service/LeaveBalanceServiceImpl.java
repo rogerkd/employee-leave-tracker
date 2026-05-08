@@ -1,13 +1,7 @@
 package com.deepak.leavetracker.leave_tracker.service;
 
-import com.deepak.leavetracker.leave_tracker.entity.Employee;
-import com.deepak.leavetracker.leave_tracker.entity.LeaveBalance;
-import com.deepak.leavetracker.leave_tracker.entity.LeaveRequest;
-import com.deepak.leavetracker.leave_tracker.entity.LeaveType;
-import com.deepak.leavetracker.leave_tracker.repository.EmployeeRepository;
-import com.deepak.leavetracker.leave_tracker.repository.LeaveBalanceRepository;
-import com.deepak.leavetracker.leave_tracker.repository.LeaveRequestRepository;
-import com.deepak.leavetracker.leave_tracker.repository.LeaveTypeRepository;
+import com.deepak.leavetracker.leave_tracker.entity.*;
+import com.deepak.leavetracker.leave_tracker.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.time.temporal.ChronoUnit;
@@ -20,15 +14,18 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService{
     private final LeaveTypeRepository leaveTypeRepository;
     private final EmployeeRepository employeeRepository;
     private final LeaveRequestRepository leaveRequestRepository;
+    private final UserAccountRepository userAccountRepository;
 
     public LeaveBalanceServiceImpl(LeaveBalanceRepository leaveBalanceRepository,
                                    LeaveTypeRepository leaveTypeRepository,
                                    EmployeeRepository employeeRepository,
-                                   LeaveRequestRepository leaveRequestRepository){
+                                   LeaveRequestRepository leaveRequestRepository,
+                                   UserAccountRepository userAccountRepository){
         this.leaveBalanceRepository = leaveBalanceRepository;
         this.leaveTypeRepository = leaveTypeRepository;
         this.employeeRepository = employeeRepository;
         this.leaveRequestRepository = leaveRequestRepository;
+        this.userAccountRepository = userAccountRepository;
     }
 
     // when employee is created, then leave balance will be initialized
@@ -55,31 +52,46 @@ public class LeaveBalanceServiceImpl implements LeaveBalanceService{
     }
 
     @Override
-    public List<LeaveBalance> fetchAllLeaveBalances(Integer empId){
+    public List<LeaveBalance> fetchAllLeaveBalancesByEmployee(String username){
 
-        Employee theEmployee = employeeRepository.findById(empId)
-                .orElseThrow(() -> new RuntimeException("Employee with Id : "+empId+" doesn't exist."));
+        // check if user account exists
+        UserAccount userAccount = userAccountRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<LeaveBalance> balances = leaveBalanceRepository.findByEmployee(theEmployee);
+        Employee existingEmployee = employeeRepository.findByUserAccount(userAccount)
+                .orElseThrow(() -> new RuntimeException("Employee with username : "+username+" doesn't exist."));
+
+        List<LeaveBalance> balances = leaveBalanceRepository.findByEmployee(existingEmployee);
         if(balances.isEmpty()){
-            throw new RuntimeException("Leave balances for employee - (" + empId + ") doesn't exist.");
+            throw new RuntimeException("Leave balances for employee - (" + existingEmployee.getEmpId() + ") doesn't exist.");
         }
         return balances;
     }
 
     @Override
-    public LeaveBalance fetchLeaveBalanceByType(Integer empId, Integer leaveTypeId){
-        Employee theEmployee = employeeRepository.findById(empId)
-                .orElseThrow(() -> new RuntimeException("Employee with Id : "+empId+" doesn't exist."));
+    public LeaveBalance fetchLeaveBalanceByType(String username, Integer leaveTypeId){
+
+        // check if user account exists
+        UserAccount userAccount = userAccountRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Employee existingEmployee = employeeRepository.findByUserAccount(userAccount)
+                .orElseThrow(() -> new RuntimeException("Employee with username : "+username+" doesn't exist."));
 
         LeaveType theLeaveType = leaveTypeRepository.findById(leaveTypeId)
                 .orElseThrow(() -> new RuntimeException("Leave type with Id : "+leaveTypeId+" doesn't exist."));
 
-        LeaveBalance balance = leaveBalanceRepository.findByEmployeeAndLeaveType(theEmployee, theLeaveType);
+        LeaveBalance balance = leaveBalanceRepository.findByEmployeeAndLeaveType(existingEmployee, theLeaveType);
         if(balance == null){
-            throw new RuntimeException("Leave balance for employee - (" + empId + ") with leave type - (" + leaveTypeId +") doesn't exist.");
+            throw new RuntimeException("Leave balance for employee - (" + existingEmployee.getEmpId() + ") with leave type - (" + leaveTypeId +") doesn't exist.");
         }
         return balance;
+    }
+
+    @Override
+    public void deleteLeaveBalanceByEmployee(Employee employee){
+
+        leaveBalanceRepository.deleteByEmployee(employee);
     }
 
     // only when manager approves the leave

@@ -1,6 +1,6 @@
 package com.deepak.leavetracker.leave_tracker.service;
 
-import com.deepak.leavetracker.leave_tracker.dto.ApiResponse;
+import com.deepak.leavetracker.leave_tracker.dto.response.ApiResponse;
 import com.deepak.leavetracker.leave_tracker.entity.Department;
 import com.deepak.leavetracker.leave_tracker.repository.DepartmentRepository;
 import org.springframework.stereotype.Service;

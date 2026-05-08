@@ -35,14 +35,14 @@ public class LeaveRequest {
     @Column(name="applied_on")
     private LocalDate appliedOn;
 
-    @Column(name="approver")
-    private Integer approver;
+    @JoinColumn(name="approver_id")
+    private Employee approver;
 
     // constructors
 
     public LeaveRequest(){}
 
-    public LeaveRequest(Integer leaveId, Integer approver, LocalDate appliedOn, String status, LocalDate endDate, LocalDate startDate, LeaveType leaveType, Employee employee) {
+    public LeaveRequest(Integer leaveId, Employee approver, LocalDate appliedOn, String status, LocalDate endDate, LocalDate startDate, LeaveType leaveType, Employee employee) {
         this.leaveId = leaveId;
         this.approver = approver;
         this.appliedOn = appliedOn;
@@ -64,11 +64,11 @@ public class LeaveRequest {
         this.leaveId = leaveId;
     }
 
-    public Integer getApprover() {
+    public Employee getApprover() {
         return approver;
     }
 
-    public void setApprover(Integer approver) {
+    public void setApprover(Employee approver) {
         this.approver = approver;
     }
 
